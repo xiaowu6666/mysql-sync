@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  mysql-master:
+    container_name: mysql-master
+    hostname: mysql-master    
+    image: mysql
+    restart: always
+    ports:
+      - "3306:3306" 
+    volumes:
+      - D:/docker/mysql_cluster/master/my.cnf:/etc/mysql/my.cnf
+      - D:/docker/mysql_cluster/master/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      TZ: Asia/Shanghai
+    command: [
+        '--character-set-server=utf8mb4',
+        '--collation-server=utf8mb4_general_ci',
+        '--max_connections=3000'
+    ]
+    networks: ## 引入外部预先定义的网段
+      myweb:
+        ipv4_address: 173.200.6.120   #设置ip地址
+      
+  mysql-slave:
+    container_name: mysql-slave
+    hostname: mysql-slave    
+    image: mysql
+    restart: always
+    ports:
+      - "3307:3306" 
+    volumes:
+      - D:/docker/mysql_cluster/slave/my.cnf:/etc/mysql/my.cnf
+      - D:/docker/mysql_cluster/slave/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      TZ: Asia/Shanghai
+    command: [
+        '--character-set-server=utf8mb4',
+        '--collation-server=utf8mb4_general_ci',
+        '--max_connections=3000'
+    ]
+    networks:
+      myweb:
+        ipv4_address: 173.200.6.121   #设置ip地址
+
+networks:
+  myweb:
+    driver: bridge
+    ipam:
+       config: 
+       # 自定义 网段
+         - subnet: "173.200.6.0/24"
